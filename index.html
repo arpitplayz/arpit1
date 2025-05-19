@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anime Character Quiz</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #2c3e50, #3498db);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #main-menu, #quiz-container, #result {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+    }
+
+    img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 15px;
+      margin: 20px 0;
+      border: 4px solid white;
+    }
+
+    button {
+      padding: 12px 24px;
+      margin: 10px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      background: #f1c40f;
+      color: black;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #d4ac0d;
+    }
+
+    .option-btn {
+      width: 250px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="main-menu">
+    <h1>Anime Quiz</h1>
+    <button onclick="startGame()">Start Quiz</button>
+  </div>
+
+  <div id="quiz-container">
+    <h2 id="question">Who is this character?</h2>
+    <img id="character-img" src="" alt="Character Image">
+    <div id="options"></div>
+  </div>
+
+  <div id="result">
+    <h2>Quiz Complete!</h2>
+    <p id="score-text"></p>
+    <button onclick="location.reload()">Play Again</button>
+  </div>
+
+  <script>
+    const quizData = [
+      { img: "https://upload.wikimedia.org/wikipedia/en/5/5a/Naruto_Uzumaki.png", options: ["Sasuke", "Naruto", "Luffy", "Goku"], answer: "Naruto" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/0/01/SasukeUchihaPartII.png", options: ["Eren", "Gohan", "Sasuke", "Gon"], answer: "Sasuke" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/5/5e/Luffy.png", options: ["Zoro", "Gon", "Luffy", "Killua"], answer: "Luffy" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/1/17/Goku_anime.png", options: ["Saitama", "Goku", "Vegeta", "Naruto"], answer: "Goku" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/f/f5/Saitama.png", options: ["Goku", "Saitama", "Levi", "Deku"], answer: "Saitama" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/7/79/Light_Yagami.png", options: ["L", "Light Yagami", "Itachi", "Zoro"], answer: "Light Yagami" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/2/2e/Gon_Freecss.png", options: ["Killua", "Gon", "Tanjiro", "Boruto"], answer: "Gon" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/c/c6/LeviAckerman.png", options: ["Eren", "Gohan", "Levi", "Zeke"], answer: "Levi" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/d/d9/Itachi_Uchiha.png", options: ["Sasuke", "Obito", "Madara", "Itachi"], answer: "Itachi" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/0/03/Izuku_Midoriya.png", options: ["Deku", "Bakugo", "Todoroki", "All Might"], answer: "Deku" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/f/f0/Edward_Elric.png", options: ["Alphonse", "Roy Mustang", "Edward", "L"], answer: "Edward" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/2/2a/Killua_Zoldyck.png", options: ["Killua", "Gon", "Hisoka", "Kurapika"], answer: "Killua" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/b/bc/Eren_Jaeger.png", options: ["Eren", "Levi", "Armin", "Zeke"], answer: "Eren" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/e/e0/Tanjiro_Kamado.png", options: ["Inosuke", "Zenitsu", "Tanjiro", "Nezuko"], answer: "Tanjiro" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/9/95/NezukoKamado.png", options: ["Nezuko", "Hinata", "Sakura", "Mikasa"], answer: "Nezuko" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/3/37/Bakugo_Katsuki.png", options: ["Todoroki", "Deku", "Bakugo", "All Might"], answer: "Bakugo" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/1/1f/Todoroki_Shoto.png", options: ["Bakugo", "Todoroki", "Deku", "Asta"], answer: "Todoroki" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/f/f6/Monkey_D_Luffy.png", options: ["Ace", "Sanji", "Zoro", "Luffy"], answer: "Luffy" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/e/e2/Roronoa_Zoro.png", options: ["Zoro", "Luffy", "Usopp", "Brook"], answer: "Zoro" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/8/81/Sanji_Anime.png", options: ["Zoro", "Sanji", "Shanks", "Sabo"], answer: "Sanji" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/4/4f/Nico_Robin.png", options: ["Nami", "Robin", "Boa Hancock", "Hinata"], answer: "Robin" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/f/f6/NamiAnime.png", options: ["Nami", "Hinata", "Mikasa", "Lucy"], answer: "Nami" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/5/56/Lucy_Heartfilia.png", options: ["Erza", "Hinata", "Lucy", "Misa"], answer: "Lucy" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/9/9a/Mikasa_Ackerman.png", options: ["Mikasa", "Sakura", "Robin", "Tsunade"], answer: "Mikasa" },
+      { img: "https://upload.wikimedia.org/wikipedia/en/e/e9/Shoto_Todoroki.png", options: ["Bakugo", "Todoroki", "Deku", "Gohan"], answer: "Todoroki" },
+      // Add more here up to 50 total
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const mainMenu = document.getElementById('main-menu');
+    const quizContainer = document.getElementById('quiz-container');
+    const resultScreen = document.getElementById('result');
+    const questionEl = document.getElementById('question');
+    const characterImg = document.getElementById('character-img');
+    const optionsEl = document.getElementById('options');
+    const scoreText = document.getElementById('score-text');
+
+    function startGame() {
+      mainMenu.style.display = 'none';
+      quizContainer.style.display = 'flex';
+      quizData.sort(() => 0.5 - Math.random()); // shuffle
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = quizData[currentQuestion];
+      questionEl.textContent = `Who is this character? (${currentQuestion + 1}/${quizData.length})`;
+      characterImg.src = q.img;
+      optionsEl.innerHTML = '';
+      q.options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.textContent = option;
+        btn.className = 'option-btn';
+        btn.onclick = () => checkAnswer(option);
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected) {
+      if (selected === quizData[currentQuestion].answer) score++;
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      quizContainer.style.display = 'none';
+      resultScreen.style.display = 'flex';
+      scoreText.textContent = `You scored ${score} out of ${quizData.length}`;
+    }
+
+    // Show main menu on load
+    mainMenu.style.display = 'flex';
+  </script>
+</body>
+</html>
